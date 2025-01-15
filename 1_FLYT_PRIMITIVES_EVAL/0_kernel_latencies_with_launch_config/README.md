@@ -2,6 +2,10 @@ Compile: `nvcc -Xptxas -dlcm=cg -o bench flyt_compute_bench.cu -lineinfo`
 
 Run: `./bench <kernel_#>`
 
+Flyt Version
+---
+N/A, run on native GPU ub-11.
+
 
 Experimental Observations
 ---
