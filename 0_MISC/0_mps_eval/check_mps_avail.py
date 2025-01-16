@@ -40,6 +40,10 @@ def check_cuda_mps_status():
         # Check MPS logs
         mps_log = os.getenv('CUDA_MPS_LOG_DIRECTORY')
         control_log = os.path.join(mps_log, "control.log")
+        if not os.path.exists(control_log):
+            print("Warning: MPS control log not found")
+            return False
+        
         if not mps_control_exited(control_log):
             print("All checks passed, control daemon is running")
         else:
