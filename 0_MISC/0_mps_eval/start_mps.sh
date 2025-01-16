@@ -1,7 +1,14 @@
 #!/bin/bash
 
 # -- Used by Flyt to start the MPS daemon
-export CUDA_VISIBLE_DEVICES="0"
+# `source start_mps.sh`
+export CUDA_VISIBLE_DEVICES="0" # Select GPU 0.
+
+export CUDA_MPS_PIPE_DIRECTORY="/tmp/nvidia-mps" # Select a location that's accessible to the given $UID. Used by CUDA app to communicate with daemon.
+
+export CUDA_MPS_LOG_DIRECTORY="/tmp/nvidia-log" # Select a location that's accessible to the given $UID
+
+nvidia-cuda-mps-control -d # Start the daemon.
 
 # Flyt RPC server starts with `CUDA_MPS_ENABLE_PER_CTX_DEVICE_MULTIPROCESSOR_PARTITIONING = 1`
 # ---> This allows non-uniform SM core reservation for cuda contexts created by the same MPS client
@@ -22,5 +29,5 @@ export CUDA_VISIBLE_DEVICES="0"
 # ---> When using MPS, we want to ensure that a single MPS server 
 # has exclusive access to the GPU. 
 # ===
-nvidia-smi -i 0 -c EXCLUSIVE_PROCESS # set GPU index -i to compute mode -c
-nvidia-cuda-mps-control -d
+# nvidia-smi -i 0 -c EXCLUSIVE_PROCESS # set GPU index -i to compute mode -c
+# nvidia-cuda-mps-control -d

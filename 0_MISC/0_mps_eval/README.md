@@ -41,3 +41,29 @@ When using MPS it is recommended to use EXCLUSIVE_PROCESS mode to ensure that on
 # MPS Resource Limits
 `CUDA_MPS_ENABLE_PER_CTX_DEVICE_MULTIPROCESSOR_PARTITIONING`
 "When non-uniform partitioning capability is enabled in an MPS client’s environment, client CUDA contexts can have different active thread percentages within the same client process via setting CUDA_MPS_ACTIVE_THREAD_PERCENTAGE before context creations. The device attribute cudaDevAttrMultiProcessorCount will reflect the active thread percentage and return the portion of available SMs that can be used by the client CUDA context current to the calling thread."
+
+# Experimental results
+Using nbody, with MPS, no resource limits. GPU at 100%util with 6proc.
+`./nbody --benchmark --fp64` with EXCLUSIVE_PROCESS : 900ms per process.
+`./nbody --benchmark --fp64 & ./nbody --benchmark --fp64 &` with EXCLUSIVE_PROCESS : 5380ms per process 
+
+`./nbody --benchmark --fp64` with DEFAULT : 900ms per process.
+`./nbody --benchmark --fp64 & ./nbody --benchmark --fp64 & ./nbody --benchmark --fp64 & ./nbody --benchmark --fp64 & ./nbody --benchmark --fp64 & ./nbody --benchmark --fp64 &` with DEFAULT: 5380ms per process, each process runs indep on nvidia-smi
+
+Conclude: 
+a. With MPS, no difference in exec between DEFAULT and EXCLUSIVE_PROCESS. But why???
+b. nvidia-smi shows individual processes on GPU, not one large MPS process. (in fact its a small mps server that doesnt change size)
+
+
+Using nbody, without MPS GPU at 100%util with 6 proc
+`./nbody --benchmark --fp64` with DEFAULT: 900ms per process
+`./nbody --benchmark --fp64 & ./nbody --benchmark --fp64 & ./nbody --benchmark --fp64 & ./nbody --benchmark --fp64 & ./nbody --benchmark --fp64 & ./nbody --benchmark --fp64 &` with DEFAULT: 5700ms per process (more than MPS bec of timeslice scheduling of multiple process contexts.)
+
+
+`./nbody --benchmark --fp64 & ./nbody --benchmark --fp64 & ./nbody --benchmark --fp64 & ./nbody --benchmark --fp64 & ./nbody --benchmark --fp64 & ./nbody --benchmark --fp64 &` with EXCLUSIVE_PROCESS: cudaSetDevice fails for parallel processes when EXCLUSIVE_PROCESS is set without MPS.
+
+
+
+
+
+
