@@ -1,1 +1,4 @@
 **/cuda-samples/
+*.o
+**/bin
+nbody
