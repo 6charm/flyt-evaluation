@@ -45,18 +45,23 @@ When using MPS it is recommended to use EXCLUSIVE_PROCESS mode to ensure that on
 # Experimental results
 Using nbody, with MPS, no resource limits. GPU at 100%util with 6proc, 16384 bodies
 `./nbody --benchmark --fp64` with EXCLUSIVE_PROCESS : 900ms per process.
+
 `./nbody --benchmark --fp64 & ./nbody --benchmark --fp64 &` with EXCLUSIVE_PROCESS : 5380ms per process 
 
 `./nbody --benchmark --fp64` with DEFAULT : 900ms per process.
+
 `./nbody --benchmark --fp64 & ./nbody --benchmark --fp64 & ./nbody --benchmark --fp64 & ./nbody --benchmark --fp64 & ./nbody --benchmark --fp64 & ./nbody --benchmark --fp64 &` with DEFAULT: 5380ms per process, each process runs indep on nvidia-smi
 
 Conclude: 
 a. With MPS, no difference in exec between DEFAULT and EXCLUSIVE_PROCESS. But why???
+
 b. nvidia-smi shows individual processes on GPU, not one large MPS process. (in fact its a small mps server that doesnt change size)
 
 
 Using nbody, without MPS GPU at 100%util with 6 proc
+
 `./nbody --benchmark --fp64` with DEFAULT: 900ms per process
+
 `./nbody --benchmark --fp64 & ./nbody --benchmark --fp64 & ./nbody --benchmark --fp64 & ./nbody --benchmark --fp64 & ./nbody --benchmark --fp64 & ./nbody --benchmark --fp64 &` with DEFAULT: 5700ms per process (more than MPS bec of timeslice scheduling of multiple process contexts.)
 
 

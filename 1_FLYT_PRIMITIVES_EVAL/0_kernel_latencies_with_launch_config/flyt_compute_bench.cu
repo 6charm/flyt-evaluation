@@ -125,7 +125,6 @@ void launch_kernel(kernel_func_ptr _k, int N, int M, FILE *f_out) {
 
     cudaEventDestroy(start);
     cudaEventDestroy(stop);
-
 }
 
 #define THREADS_PER_BLOCK 1024
