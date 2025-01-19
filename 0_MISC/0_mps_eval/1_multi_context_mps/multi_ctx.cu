@@ -122,9 +122,7 @@ void derive_SLA(kernel_func_ptr _k_heavy, kernel_func_ptr _k_light) {
 // but the heavier kernel will slow down.)
 // Find the min launch config such that 
 
-__global__ void k_heavy(int _iter){}; // more SMs reqd. 
 
-__global__ void k_light(int __iter){}; // less SMs reqd.
 
 
 // Theoretical execution bounds:
@@ -155,10 +153,10 @@ __global__ void k_light(int __iter){}; // less SMs reqd.
 // We need to show that a 50:50 SM split between two workloads
 // will slow down the "heavier" workload and leave the "lighter"
 // workload unchanged. 
-// k_heavy: a workload that slows down when SM % is reduced from 75% to 50%
-// k_light: a workload with latency unchanged when SM % is increased from 25% to 50%.
+// w_heavy: a workload that slows down when SM % is reduced from 75% to 50%
+// w_light: a workload with latency unchanged when SM % is increased from 25% to 50%.
 // ---
-// k_heavy will have a certain LC at which it will begin experiencing 
+// w_kernel will have a certain LC at which it will begin experiencing 
 // execution delays (this LC will reduce with SM core allocation, i.e. % threads)
 // At the limiting LC thread count, a reduction in the SM Core allocation
 // will trigger the first execution delays.
@@ -168,8 +166,22 @@ __global__ void k_light(int __iter){}; // less SMs reqd.
 // <limiting LC value at <=25% thread allocation>.
 // When the resource allocation change occurs, it is clear that the w_heavy will experience delay
 // while the w_light will perform as it was, or even better.
+// ---
+// Q. Consider the Matrix Multiplication Kernel. For a fixed launch
+// configuration, why does execution time increase with a larger 
+// matrix size? Assume no resource limits.
+// A: After the input matrices have been copied onto the GPU DRAM, 
+// computations (whatever the MM algorithm) is essentially every thread
+// launched will bring a row and column into cache, then perform a 
+// series of FMA until the result is calculated. 
+// --> This FMA involves copying data from memory (cache or direct from DRAM) into registers, followed
+// by the actual SP Unit calculation and writeback to GPU DRAM.
+// --! LARGER MATRICES WILL REQUIRE EACH THREAD TO USE MORE REGISTERS
+// --! PER OUTPUT RESULT CALCULATION, leading to contention and delays.
+// We can think of two cases for the LC: 
+// i) #warps 
 #define THREAD_COUNT 2
 int main(int argc,  char *argv[]) {
-    derive_SLA(k_heavy, k_light);
+    derive_SLA(w_kernel);
     
 }

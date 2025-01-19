@@ -73,19 +73,26 @@ __global__ void k_dummy_4(int _iter) {
         global_data[tid % 1024] = val;  // Global memory write
     }
 }
-
 // heavier compute-only
 __global__ void k_dummy_5(int _iter){
     int tid = threadIdx.x + blockIdx.x * blockDim.x;
     float value = tid * 1.0f;
 
-    // Perform compute-intensive operations
+    // Perform compute-intensive operations 
     for (int i = 0; i < _iter; i++) {
         value = sinf(value) * cosf(value) + tanf(value) * value;
         value += sqrtf(fabsf(value));                           
         value = fmodf(value, 1000.0f);                          
     }
 }
+
+__global__ void k_dummy_6(uint *A, uint *B, int row) {
+  int x = threadIdx.x / 4;
+  int y = threadIdx.x % 4;
+  A[x * row + y] = x;
+  B[x * row + y] = y;
+}
+
 
 // Function to print GPU capabilities
 void pr_gpu_cap(int &sm_cores, float &max_warps_per_sm_core, float &warp_size) {
@@ -101,6 +108,7 @@ void pr_gpu_cap(int &sm_cores, float &max_warps_per_sm_core, float &warp_size) {
         max_warps_per_sm_core = prop.maxThreadsPerMultiProcessor / (float)prop.warpSize;
         printf("GPU %d has %d SM Cores, max %.2f warps per core.\n",
                device, sm_cores, max_warps_per_sm_core);
+        printf("Max threads: %f\n", sm_cores * max_warps_per_sm_core * 32);
     }
 }
 
@@ -121,13 +129,13 @@ void launch_kernel(kernel_func_ptr _k, int N, int M, FILE *f_out) {
     float t_ms = 0;
     cudaEventElapsedTime(&t_ms, start, stop);
     // printf("(%d, 1024): %.4f ms\n", N, t_ms);
-    fprintf(f_out, "%d,%.4f\n", N,t_ms);
+    fprintf(f_out, "%d,%.4f\n", M*N,t_ms);
 
     cudaEventDestroy(start);
     cudaEventDestroy(stop);
 }
 
-#define THREADS_PER_BLOCK 1024
+// #define THREADS_PER_BLOCK 1024
 int main(int argc, char *argv[]) {
     int sm_cores;
     float max_warps_per_sm_core, warp_size;
@@ -173,8 +181,9 @@ int main(int argc, char *argv[]) {
     // num_warps = ceil(num_blocks * num_threads_per_block / warpsize)
     // = ceil(N * M / warpsize) <= sm_cores * max_warps_per_sm_core
     for (int N = 1; N <= 4 * warps_at_max_occupancy; N++) {
-        int M = THREADS_PER_BLOCK;
-        launch_kernel(kernel, N, M, f_out);
+        for (int M = 32; M <=1024; M+=32) {
+            launch_kernel(kernel, N, M, f_out);
+        }        
     }
     
     // k_dummy<<<N, M>>>();
