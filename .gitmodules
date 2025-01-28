@@ -1,0 +1,3 @@
+[submodule "0_WORKLOADS/0_WORKLOADS/gunrock"]
+	path = 0_WORKLOADS/0_WORKLOADS/gunrock
+	url = https://github.com/armaanchowfin/gunrock.git
