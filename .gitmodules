@@ -1,3 +1,6 @@
 [submodule "0_WORKLOADS/0_WORKLOADS/gunrock"]
 	path = 0_WORKLOADS/0_WORKLOADS/gunrock
 	url = https://github.com/armaanchowfin/gunrock.git
+[submodule "/home/ub-11/Armaan_Puru_Flyt/flyt-evaluation/0_WORKLOADS/gunrock"]
+	path = /home/ub-11/Armaan_Puru_Flyt/flyt-evaluation/0_WORKLOADS/gunrock
+	url = https://github.com/armaanchowfin/gunrock.git
