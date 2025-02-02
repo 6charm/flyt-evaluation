@@ -2,3 +2,5 @@
 *.o
 **/bin
 nbody
+
+**/lammps-29Aug2024/
